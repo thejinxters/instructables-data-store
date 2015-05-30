@@ -1,0 +1,11 @@
+{
+    "mashapeKey" : "<Mashape_api_key_here>",
+
+    "database" : {
+        "type" : "mysql",
+        "host" : "localhost",
+        "user" : "root",
+        "pass" : "",
+        "database" : "<Database_name_here>"
+    }
+}

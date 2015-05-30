@@ -1,0 +1,16 @@
+# Webstorm
+.idea/
+
+# Node
+node_modules
+
+# App
+config.json
+
+# Universal
+.DS_Store
+*.swp
+*.tar
+*.tgz
+*.gz
+*.sql

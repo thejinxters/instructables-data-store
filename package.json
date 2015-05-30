@@ -1,0 +1,16 @@
+{
+  "name": "scripts",
+  "version": "1.0.0",
+  "description": "Scripts for kitables",
+  "main": "collect-data.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Brandon Mikulka",
+  "license": "ISC",
+  "dependencies": {
+    "mysql2": "^0.15.7",
+    "requirejs": "^2.1.18",
+    "unirest": "^0.4.2"
+  }
+}
