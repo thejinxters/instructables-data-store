@@ -15,10 +15,11 @@ var Api = module.exports = {};
  * @param offset
  * @param sort
  * @param type
+ * @param callback
  */
-Api.instructablesGetListApi = function(limit, offset, sort, type){
+Api.instructablesGetListApi = function(limit, offset, sort, type, callback){
     //Set Defaults
-    var useLimit = limit || 20;
+    var useLimit = limit || 200;
     var useOffset = offset || 0;
     var useSort = sort || 'recent';
     var useType = type || 'id';
@@ -28,13 +29,12 @@ Api.instructablesGetListApi = function(limit, offset, sort, type){
         "&sort=" + useSort +
         "&type=" + useType;
 
-    unirest.get("https://devru-instructables.p.mashape.com/list?limit=20&offset=0&sort=recent&type=id")
+    var test = unirest.get(url)
         .header("X-Mashape-Key", mashapeKey)
         .header("Accept", "application/json")
         .end(function (result) {
             var items = result.body.items;
-            items.forEach( function(item) {
-                console.log(item);
-            });
+            callback(useLimit, useOffset, useSort, useType, items);
         });
+
 };
