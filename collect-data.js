@@ -35,6 +35,7 @@ var saveItem = function(limit, offset, sort, type, items){
         // Save only new items
         if (el.id != mostRecentId){
             item.insert(db, el);
+            api.instructablesGetDetails(el.id, saveItemDetails)
             return true;
         }
         else{
@@ -46,22 +47,13 @@ var saveItem = function(limit, offset, sort, type, items){
     if (!completed){
         var newOffset = limit + offset;
         api.instructablesGetListApi(limit, newOffset, sort, type, saveItem);
-
-        // TODO: get details for new items
     }
     else{
         console.log('Done gathering new items from the API.');
-        db.connection.end();
+        //db.connection.end();
     }
 };
 
-
-
-
-
-
-
-
-
-
-
+var saveItemDetails = function(itemDetails){
+    item.updateDetails(db, itemDetails);
+}

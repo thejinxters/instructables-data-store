@@ -29,12 +29,31 @@ Api.instructablesGetListApi = function(limit, offset, sort, type, callback){
         "&sort=" + useSort +
         "&type=" + useType;
 
-    var test = unirest.get(url)
+    unirest.get(url)
         .header("X-Mashape-Key", mashapeKey)
         .header("Accept", "application/json")
         .end(function (result) {
             var items = result.body.items;
             callback(useLimit, useOffset, useSort, useType, items);
+        });
+
+};
+
+
+Api.instructablesGetDetails = function(id, callback){
+
+    if (!id){
+        return;
+    }
+
+    var url = "https://devru-instructables.p.mashape.com/json-api/showInstructable?id=" + id;
+
+    unirest.get(url)
+        .header("X-Mashape-Key", mashapeKey)
+        .header("Accept", "application/json")
+        .end(function (result) {
+            var itemDetails = result.body;
+            callback(itemDetails);
         });
 
 };
