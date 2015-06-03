@@ -1,6 +1,7 @@
 var item = module.exports = {};
 
 var moment = require('moment');
+var bodyText = require('./body-text');
 
 // Table schema
 var tableSchema =  "id VARCHAR(100), " +
@@ -18,6 +19,7 @@ var tableSchema =  "id VARCHAR(100), " +
         "instructable_type VARCHAR(10), " +
 
         // Item Description
+        "author_id VARCHAR(100), " +
         "type VARCHAR(100), " +
         "status VARCHAR(100), " +
         "edit_version INT, " +
@@ -106,6 +108,7 @@ item.updateDetails = function(db, itemDetails){
     var itemMaxWordcount = 0;
     var itemMinWordcount = Number.POSITIVE_INFINITY;
     var itemAverageWordcount = 0;
+    try {
     for (var k = 0; k < itemDetails.steps.length; k++){
         var stepWordcount = itemDetails.steps[k].wordCount;
         if (stepWordcount > itemMaxWordcount){
@@ -115,10 +118,17 @@ item.updateDetails = function(db, itemDetails){
             itemMinWordcount = stepWordcount;
         }
         itemAverageWordcount += stepWordcount;
+
+        bodyText.insert(db, itemDetails.id, itemDetails.steps[k]);
+    }
+    }
+    catch (err) {
+        console.log(err);
     }
     itemAverageWordcount /= itemDetails.steps.length;
 
     var data = {
+        author_id: itemDetails.author.id,
         type: itemDetails.type,
         status: itemDetails.status,
         edit_version: itemDetails.editVersion,

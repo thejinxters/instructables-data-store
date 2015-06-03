@@ -9,19 +9,22 @@
 var api = require('./api/instructables-api');
 var db = require('./db/mysql-setup');
 var item = require('./db/item');
+var author = require('./db/author');
+var bodyText = require('./db/body-text');
 
 // Connect to MySQL
 db.connection.connect();
 
-// Setup items table if it is needed
+// Setup tables if it is needed
 item.setup(db);
-
+author.setup(db);
+bodyText.setup(db);
 
 // Setup Script
 var mostRecentId = '';
 var runScript = function(id){
     // Call instructables API
-    mostRecentId = id;
+    //mostRecentId = id;
     api.instructablesGetListApi(null, null, null, null, saveItem);
 };
 
@@ -34,8 +37,10 @@ var saveItem = function(limit, offset, sort, type, items){
     items.every( function(el) {
         // Save only new items
         if (el.id != mostRecentId){
-            item.insert(db, el);
-            api.instructablesGetDetails(el.id, saveItemDetails)
+            if (el.instructableType == "I"){
+                item.insert(db, el);
+                api.instructablesGetDetails(el.id, saveItemDetails);
+            }
             return true;
         }
         else{
@@ -56,4 +61,5 @@ var saveItem = function(limit, offset, sort, type, items){
 
 var saveItemDetails = function(itemDetails){
     item.updateDetails(db, itemDetails);
-}
+    author.insert(db, itemDetails.author);
+};
