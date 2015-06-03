@@ -9,6 +9,7 @@
   "author": "Brandon Mikulka",
   "license": "ISC",
   "dependencies": {
+    "limiter": "^1.0.5",
     "moment": "^2.10.3",
     "mysql2": "^0.15.7",
     "requirejs": "^2.1.18",

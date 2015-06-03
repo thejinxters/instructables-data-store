@@ -19,7 +19,7 @@ var Api = module.exports = {};
  */
 Api.instructablesGetListApi = function(limit, offset, sort, type, callback){
     //Set Defaults
-    var useLimit = limit || 200;
+    var useLimit = limit || 500;
     var useOffset = offset || 0;
     var useSort = sort || 'recent';
     var useType = type || 'id';

@@ -11,6 +11,10 @@ var db = require('./db/mysql-setup');
 var item = require('./db/item');
 var author = require('./db/author');
 var bodyText = require('./db/body-text');
+var RateLimiter = require('limiter').RateLimiter;
+
+//limit api calls to 1 every 250 ms
+var limiter = new RateLimiter(1, 250);
 
 // Connect to MySQL
 db.connection.connect();
@@ -24,7 +28,7 @@ bodyText.setup(db);
 var mostRecentId = '';
 var runScript = function(id){
     // Call instructables API
-    //mostRecentId = id;
+    mostRecentId = id;
     api.instructablesGetListApi(null, null, null, null, saveItem);
 };
 
@@ -39,7 +43,9 @@ var saveItem = function(limit, offset, sort, type, items){
         if (el.id != mostRecentId){
             if (el.instructableType == "I"){
                 item.insert(db, el);
-                api.instructablesGetDetails(el.id, saveItemDetails);
+                limiter.removeTokens(1, function(err, remainingRequests) {
+                    api.instructablesGetDetails(el.id, saveItemDetails);
+                });
             }
             return true;
         }
