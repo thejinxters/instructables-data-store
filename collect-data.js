@@ -29,6 +29,8 @@ var mostRecentId = '';
 var runScript = function(id){
     // Call instructables API
     mostRecentId = id;
+    // Uncommment the following to gather every instructable to date
+    //mostRecentID = "ER5FGMQVCMEP285YRF";
     api.instructablesGetListApi(null, null, null, null, saveItem);
 };
 
