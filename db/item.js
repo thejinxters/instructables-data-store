@@ -146,7 +146,7 @@ item.updateDetails = function(db, itemDetails){
         attached_images: itemImageCount,
         min_step_wordcount: itemMinWordcount,
         max_step_wordcount: itemMaxWordcount,
-        average_step_wordcount: itemAverageWordcount,
+        average_step_wordcount: parseInt(itemAverageWordcount),
         steps_containing_words: itemDetails.numStepsByWordCount,
         license_name: itemDetails.license.fullName,
         license_url: itemDetails.license.url
@@ -178,4 +178,35 @@ item.getMostRecentItem = function(db, callback){
 
         }
     );
+};
+
+item.getAllItemIds = function(db, callback){
+    db.connection.query(
+        "SELECT id FROM ??",
+        [table],
+        function (err, result){
+            if (err) {
+                console.log("MySQL Get Item Ids "+ err);
+            }
+            else {
+                callback(result);
+            }
+        }
+
+    );
+};
+
+item.getItem = function(apiItem, db, callback){
+  db.connection.query(
+      "SELECT * FROM ?? WHERE id = ? LIMIT 1",
+      [table, apiItem.id],
+      function (err, result){
+          if (err) {
+              console.log("MySQL Get Item "+ err);
+          }
+          else {
+              callback(result[0], apiItem);
+          }
+      }
+  );
 };
