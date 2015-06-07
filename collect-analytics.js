@@ -9,6 +9,7 @@ var api = require('./api/instructables-api');
 var db = require('./db/mysql-setup');
 var item = require('./db/item');
 var event = require('./db/event');
+var view = require('./db/view');
 var RateLimiter = require('limiter').RateLimiter;
 
 //limit api calls to 1 every 250 ms
@@ -19,6 +20,7 @@ db.connection.connect();
 
 // Setup tables if it is needed
 event.setup(db);
+view.setup(db);
 
 // Retrieve a list of ids
 var collectIds = function() {
@@ -29,28 +31,49 @@ var collectIds = function() {
 var retrieveNewData = function(itemIds) {
 
     itemIds.every(function(row){
-        api.instructablesGetDetails(row.id, getItemFromDb);
+        limiter.removeTokens(1, function(err, remainingRequests) {
+            api.instructablesGetDetails(row.id, getItemFromDb);
+        });
         return true;
     });
 };
 
 // Collect original Data
 var getItemFromDb = function(apiItem){
-    item.getItem(apiItem, db, compareitemData);
-}
+    item.getItem(apiItem, db, collectEvents);
+};
 
 // Collect all Associated Events
-
-var addEventData = function(){
-    //todo: add event data to the item (in order)
+var collectEvents = function(dbItem, apiItem){
+    event.collectChanges(db, dbItem, apiItem, addEventData);
 };
-var addViewData = function(){
-    //todo: add view data for the last view event
+
+// Update current Item to include event data
+var addEventData = function(result, dbItem, apiItem){
+
+    var updatedItem = dbItem;
+    for(var i = 0; i < result.length; i++){
+        var key = result[i].event_key;
+        updatedItem[key] = result[i][key];
+    }
+    collectViews(updatedItem, apiItem);
+};
+
+var collectViews = function(dbItem, apiItem){
+    view.collectViews(db, dbItem, apiItem, addViewData);
+};
+
+var addViewData = function(result, dbItem, apiItem){
+    var updatedItem = dbItem;
+    for(var i = 0; i < result.length; i++){
+        updatedItem.views = result[i].views;
+    }
+    compareItemData(updatedItem, apiItem);
 };
 
 
 // Add New event if data is different
-var compareitemData = function(dbItem, apiItem){
+var compareItemData = function(dbItem, apiItem){
 
     var itemTags = apiItem.keywords[0];
     for (var i = 1; i < apiItem.keywords.length; i++){
@@ -115,9 +138,11 @@ var compareitemData = function(dbItem, apiItem){
         if (dbItem[key] != apiTranslation[key]){
             if (key == "views"){
                 // Store to views table
+                view.insert(db, dbItem, apiTranslation);
             }
             else{
                 //Store to events table
+                event.insert(db, dbItem.id, key, apiTranslation[key]);
             }
             console.log(key + " is different!!");
         }
