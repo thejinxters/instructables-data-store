@@ -45,9 +45,6 @@ var saveItem = function(limit, offset, sort, type, items){
         if (el.id != mostRecentId){
             if (el.instructableType == "I"){
                 item.insert(db, el);
-                limiter.removeTokens(1, function(err, remainingRequests) {
-                    api.instructablesGetDetails(el.id, saveItemDetails);
-                });
             }
             return true;
         }
@@ -65,9 +62,4 @@ var saveItem = function(limit, offset, sort, type, items){
         console.log('Done gathering new items from the API.');
         //db.connection.end();
     }
-};
-
-var saveItemDetails = function(itemDetails){
-    item.updateDetails(db, itemDetails);
-    author.insert(db, itemDetails.author);
 };
