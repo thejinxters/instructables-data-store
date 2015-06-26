@@ -27,16 +27,32 @@ var collectIds = function() {
     item.getAllItemIds(db, retrieveNewData);
 };
 
-// Call the API
-var retrieveNewData = function(itemIds) {
 
-    itemIds.every(function(row){
-        limiter.removeTokens(1, function(err, remainingRequests) {
-            api.instructablesGetDetails(row.id, getItemFromDb);
-        });
-        return true;
+var getAllItems = function(limit, offset, sort, type, items){
+    var completed = false;
+    items.every( function(el) {
+        // Grab all Items untill last one (egg scramble)
+        if (el.id != "ER5FGMQVCMEP285YRF"){
+            if (el.instructableType == "I"){
+                getItemFromDb(el);
+            }
+            return true;
+        }
+        else{
+            completed = true;
+            return false;
+        }
     });
+
+    if (!completed){
+        var newOffset = limit + offset;
+        api.instructablesGetListApi(limit, newOffset, sort, type, getAllItems);
+    }
+    else{
+        console.log('Done gathering new items from the API.');
+    }
 };
+
 
 // Collect original Data
 var getItemFromDb = function(apiItem){
@@ -45,7 +61,9 @@ var getItemFromDb = function(apiItem){
 
 // Collect all Associated Events
 var collectEvents = function(dbItem, apiItem){
-    event.collectChanges(db, dbItem, apiItem, addEventData);
+    if(dbitem) {
+        event.collectChanges(db, dbItem, apiItem, addEventData);
+    }
 };
 
 // Update current Item to include event data
@@ -75,59 +93,11 @@ var addViewData = function(result, dbItem, apiItem){
 // Add New event if data is different
 var compareItemData = function(dbItem, apiItem){
 
-    var itemTags = apiItem.keywords[0];
-    for (var i = 1; i < apiItem.keywords.length; i++){
-        itemTags += ', ' + apiItem.keywords[i];
-    }
-
-    //Get Image Counts
-    var itemImageCount = 0;
-    for (var j = 0; j < apiItem.files.length; j++){
-        var imgTypes = /[.]jpg$|[.]png$/;
-        if (imgTypes.test(apiItem.files[j].name)){
-            itemImageCount++;
-        }
-    }
-
-    //Get Word Counts
-    var itemMaxWordcount = 0;
-    var itemMinWordcount = Number.POSITIVE_INFINITY;
-    var itemAverageWordcount = 0;
-    for (var k = 0; k < apiItem.steps.length; k++){
-        var stepWordcount = apiItem.steps[k].wordCount;
-        if (stepWordcount > itemMaxWordcount){
-            itemMaxWordcount = stepWordcount;
-        }
-        if (stepWordcount < itemMinWordcount) {
-            itemMinWordcount = stepWordcount;
-        }
-        itemAverageWordcount += stepWordcount;
-    }
-    itemAverageWordcount /= apiItem.steps.length;
-
     var apiTranslation = {
-        status: apiItem.status,
-        edit_version: apiItem.editVersion,
-        display_category: apiItem.displayCategory,
-        display_channel: apiItem.displayChannel,
-        comments: apiItem.comments,
-        step_count: apiItem.stepCount,
-        popular_flag: apiItem.popularFlag,
-        feature_flag: apiItem.featureFlag,
-        sponsored_flag: apiItem.sponsoredFlag,
-        pg_flag: apiItem.pgFlag,
-        tags: itemTags,
-        tags_count: apiItem.keywords.length,
-        attached_files: apiItem.files.length,
-        attached_images: itemImageCount,
-        min_step_wordcount: itemMinWordcount,
-        max_step_wordcount: itemMaxWordcount,
-        average_step_wordcount: parseInt(itemAverageWordcount),
-        steps_containing_words: apiItem.numStepsByWordCount,
         title: apiItem.title,
         category: apiItem.category,
         channel: apiItem.channel,
-        featured: apiItem.featureFlag,
+        featured: apiItem.featured,
         views: apiItem.views,
         favorites: apiItem.favorites
     };
@@ -152,4 +122,4 @@ var compareItemData = function(dbItem, apiItem){
 };
 
 
-collectIds();
+api.instructablesGetListApi(null, null, null, null, getAllItems);

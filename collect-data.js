@@ -21,8 +21,6 @@ db.connection.connect();
 
 // Setup tables if it is needed
 item.setup(db);
-author.setup(db);
-bodyText.setup(db);
 
 // Setup Script
 var mostRecentId = '';
@@ -30,7 +28,7 @@ var runScript = function(id){
     // Call instructables API
     mostRecentId = id;
     // Uncommment the following to gather every instructable to date
-    //mostRecentID = "ER5FGMQVCMEP285YRF";
+    //mostRecentId = "EUGD7QSIBAMN516";
     api.instructablesGetListApi(null, null, null, null, saveItem);
 };
 
