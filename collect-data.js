@@ -58,6 +58,12 @@ var saveItem = function(limit, offset, sort, type, items){
     }
     else{
         console.log('Done gathering new items from the API.');
-        //db.connection.end();
+
+        //after 30 minutes, close database connection!
+        setTimeout(
+            function()
+            {
+                db.connection.end();
+            }, 1000 * 60 * 30);
     }
 };

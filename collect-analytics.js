@@ -22,11 +22,6 @@ db.connection.connect();
 event.setup(db);
 view.setup(db);
 
-// Retrieve a list of ids
-var collectIds = function() {
-    item.getAllItemIds(db, retrieveNewData);
-};
-
 
 var getAllItems = function(limit, offset, sort, type, items){
     var completed = false;
@@ -50,6 +45,11 @@ var getAllItems = function(limit, offset, sort, type, items){
     }
     else{
         console.log('Done gathering new items from the API.');
+        setTimeout(
+            function()
+            {
+                db.connection.end();
+            }, 1000 * 60 * 30);
     }
 };
 
@@ -61,7 +61,7 @@ var getItemFromDb = function(apiItem){
 
 // Collect all Associated Events
 var collectEvents = function(dbItem, apiItem){
-    if(dbitem) {
+    if(dbItem) {
         event.collectChanges(db, dbItem, apiItem, addEventData);
     }
 };
@@ -121,5 +121,6 @@ var compareItemData = function(dbItem, apiItem){
 
 };
 
-
 api.instructablesGetListApi(null, null, null, null, getAllItems);
+
+
