@@ -13,7 +13,7 @@ var db = module.exports = {};
 db.connection = mysql.createConnection({
     host        : database.host,
     user        : database.user,
-    password    : database.password,
+    password    : database.pass,
     database    : database.database
 });
 
